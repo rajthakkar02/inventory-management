@@ -1,0 +1,128 @@
+<% content_for(:title) { "Monthly Report — MobileStock Pro" } %>
+<% month_names = %w[January February March April May June July August September October November December] %>
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">📈 Monthly Report</h1>
+    <p class="page-subtitle"><%= month_names[@month - 1] %> <%= @year %></p>
+  </div>
+</div>
+
+<!-- Month Selector -->
+<div class="month-selector">
+  <form method="get" action="<%= monthly_report_path %>" style="display: flex; gap: 10px; align-items: center;">
+    <select name="month" class="form-select" style="width: auto;" id="report-month-select">
+      <% month_names.each_with_index do |name, i| %>
+        <option value="<%= i + 1 %>" <%= 'selected' if @month == i + 1 %>><%= name %></option>
+      <% end %>
+    </select>
+    <select name="year" class="form-select" style="width: auto;" id="report-year-select">
+      <% (2024..Date.current.year + 1).each do |y| %>
+        <option value="<%= y %>" <%= 'selected' if @year == y %>><%= y %></option>
+      <% end %>
+    </select>
+    <button type="submit" class="btn btn-primary btn-sm">Apply</button>
+  </form>
+</div>
+
+<!-- Stats -->
+<div class="stats-grid">
+  <div class="stat-card animate-in">
+    <div class="stat-card-icon revenue">💰</div>
+    <div class="stat-card-value">₹<%= number_with_delimiter(@total_revenue.to_i) %></div>
+    <div class="stat-card-label">Monthly Revenue</div>
+  </div>
+  <div class="stat-card animate-in">
+    <div class="stat-card-icon items">📦</div>
+    <div class="stat-card-value"><%= @total_items %></div>
+    <div class="stat-card-label">Items Sold</div>
+  </div>
+  <div class="stat-card animate-in">
+    <div class="stat-card-icon transactions">🧾</div>
+    <div class="stat-card-value"><%= @total_transactions %></div>
+    <div class="stat-card-label">Transactions</div>
+  </div>
+  <div class="stat-card animate-in">
+    <div class="stat-card-icon stock">📊</div>
+    <div class="stat-card-value">₹<%= number_with_delimiter(@avg_daily.to_i) %></div>
+    <div class="stat-card-label">Avg. Daily Revenue</div>
+  </div>
+</div>
+
+<!-- Daily Breakdown Chart -->
+<div class="card animate-in mb-3">
+  <div class="card-header">
+    <h3 class="card-title">📊 Daily Revenue Breakdown</h3>
+  </div>
+  <% if @daily_data.any? %>
+    <% max_revenue = @daily_data.map { |d| d.day_revenue.to_f }.max %>
+    <div class="bar-chart" style="height: 200px;">
+      <% @daily_data.each do |day| %>
+        <div class="bar-chart-item">
+          <div class="bar-chart-value">₹<%= (day.day_revenue.to_i / 1000.0).round(1) %>k</div>
+          <div class="bar-chart-bar" style="height: <%= max_revenue > 0 ? (day.day_revenue.to_f / max_revenue * 100).round : 5 %>%;" title="₹<%= number_with_delimiter(day.day_revenue.to_i) %>"></div>
+          <div class="bar-chart-label"><%= Date.parse(day.sale_date.to_s).day %></div>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <p class="text-muted" style="padding: 20px 0;">No sales data for this month.</p>
+  <% end %>
+</div>
+
+<div class="report-grid">
+  <!-- Payment Breakdown -->
+  <div class="report-section animate-in">
+    <div class="report-section-title">💳 Payment Breakdown</div>
+    <% if @payment_breakdown.any? %>
+      <% max_val = @payment_breakdown.values.max.to_f %>
+      <div class="breakdown-list">
+        <% @payment_breakdown.each do |method, amount| %>
+          <div class="breakdown-item">
+            <span class="breakdown-dot <%= method %>"></span>
+            <span class="breakdown-label"><%= method.upcase %></span>
+            <div class="breakdown-bar-track">
+              <div class="breakdown-bar-fill <%= method %>" style="width: <%= max_val > 0 ? (amount / max_val * 100).round : 0 %>%"></div>
+            </div>
+            <span class="breakdown-value">₹<%= number_with_delimiter(amount.to_i) %></span>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <p class="text-muted">No data available.</p>
+    <% end %>
+  </div>
+
+  <!-- Category Breakdown -->
+  <div class="report-section animate-in">
+    <div class="report-section-title">📊 Category Breakdown</div>
+    <div class="breakdown-list">
+      <% @category_breakdown.each do |cat, amount| %>
+        <div class="breakdown-item">
+          <span class="breakdown-dot <%= cat == 'Mobiles' ? 'upi' : 'cash' %>"></span>
+          <span class="breakdown-label"><%= cat %></span>
+          <span class="breakdown-value">₹<%= number_with_delimiter(amount.to_i) %></span>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Top Products -->
+  <div class="report-section animate-in" style="grid-column: 1 / -1;">
+    <div class="report-section-title">🏆 Top 10 Selling Products</div>
+    <% if @top_products.any? %>
+      <% @top_products.each_with_index do |product, index| %>
+        <div class="top-product-item">
+          <span class="top-product-rank"><%= index + 1 %></span>
+          <span class="top-product-name"><%= product.brand %> <%= product.name %></span>
+          <div class="top-product-stats">
+            <div class="top-product-revenue">₹<%= number_with_delimiter(product.total_revenue.to_i) %></div>
+            <div class="top-product-qty"><%= product.total_qty %> sold</div>
+          </div>
+        </div>
+      <% end %>
+    <% else %>
+      <p class="text-muted">No products sold this month.</p>
+    <% end %>
+  </div>
+</div>

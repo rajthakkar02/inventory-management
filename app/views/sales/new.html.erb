@@ -1,0 +1,123 @@
+<% content_for(:title) { "New Sale — MobileStock Pro" } %>
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Record New Sale</h1>
+    <p class="page-subtitle">Select a product and record the sale</p>
+  </div>
+  <%= link_to sales_path, class: "btn btn-secondary" do %>
+    ← Sales History
+  <% end %>
+</div>
+
+<div class="card form-card animate-in" data-controller="sale">
+  <% if @sale.errors.any? %>
+    <div class="error-list">
+      <h3>Please fix the following errors:</h3>
+      <ul>
+        <% @sale.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <%= form_with model: @sale, html: { id: "sale-form" } do |f| %>
+    <!-- Product Selection -->
+    <div class="form-group">
+      <label class="form-label" for="sale_product_id">Select Product *</label>
+      <%= f.select :product_id,
+          options_for_select(
+            @products.map { |p| ["#{p.display_name} (Stock: #{p.quantity}) — ₹#{p.selling_price.to_i}", p.id, { "data-price" => p.selling_price, "data-stock" => p.quantity, "data-name" => p.display_name }] },
+            @sale.product_id
+          ),
+          { include_blank: "— Choose a product —" },
+          { class: "form-select", required: true, id: "sale_product_id",
+            data: { action: "change->sale#productSelected", sale_target: "productSelect", url: product_info_path } } %>
+    </div>
+
+    <!-- Product Info Card (shown when product is selected) -->
+    <div class="product-info-card" data-sale-target="productInfo" id="selected-product-info">
+      <div class="product-info-row">
+        <span class="product-info-label">Product</span>
+        <span class="product-info-value" data-sale-target="productName">—</span>
+      </div>
+      <div class="product-info-row">
+        <span class="product-info-label">Unit Price</span>
+        <span class="product-info-value">₹<span data-sale-target="productPrice">0</span></span>
+      </div>
+      <div class="product-info-row">
+        <span class="product-info-label">Available Stock</span>
+        <span class="product-info-value" data-sale-target="productStock">0</span>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label" for="sale_quantity">Quantity *</label>
+        <%= f.number_field :quantity, class: "form-input", min: 1, value: @sale.quantity || 1, required: true, id: "sale_quantity",
+            data: { action: "input->sale#calculate", sale_target: "quantity" } %>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="sale_unit_price">Unit Price (₹) *</label>
+        <%= f.number_field :unit_price, class: "form-input", step: "0.01", min: 0, required: true, id: "sale_unit_price",
+            data: { action: "input->sale#calculate", sale_target: "unitPrice" } %>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label" for="sale_discount">Discount (₹)</label>
+        <%= f.number_field :discount, class: "form-input", step: "0.01", min: 0, value: @sale.discount || 0, id: "sale_discount",
+            data: { action: "input->sale#calculate", sale_target: "discount" } %>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Total Amount</label>
+        <div class="form-input" style="background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.3); font-weight: 700; font-size: 1.2rem; color: var(--status-success);">
+          ₹<span data-sale-target="totalDisplay" id="sale-total-display">0</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Payment Method -->
+    <div class="form-group">
+      <label class="form-label">Payment Method *</label>
+      <div class="filter-tabs" style="margin-bottom: 0;">
+        <label class="filter-tab active" id="pay-cash-tab">
+          💵 Cash
+          <%= f.radio_button :payment_method, "cash", checked: true, style: "display:none" %>
+        </label>
+        <label class="filter-tab" id="pay-upi-tab">
+          📱 UPI
+          <%= f.radio_button :payment_method, "upi", style: "display:none" %>
+        </label>
+        <label class="filter-tab" id="pay-card-tab">
+          💳 Card
+          <%= f.radio_button :payment_method, "card", style: "display:none" %>
+        </label>
+      </div>
+    </div>
+
+    <!-- Customer Info (optional) -->
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label" for="sale_customer_name">Customer Name</label>
+        <%= f.text_field :customer_name, class: "form-input", placeholder: "Optional", id: "sale_customer_name" %>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="sale_customer_phone">Customer Phone</label>
+        <%= f.text_field :customer_phone, class: "form-input", placeholder: "Optional", id: "sale_customer_phone" %>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="sale_notes">Notes</label>
+      <%= f.text_area :notes, class: "form-textarea", placeholder: "Any additional notes about this sale...", rows: 2, id: "sale_notes" %>
+    </div>
+
+    <div class="btn-group mt-2">
+      <%= f.submit "🛒 Record Sale", class: "btn btn-primary btn-lg", id: "sale-submit" %>
+      <%= link_to "Cancel", sales_path, class: "btn btn-secondary btn-lg" %>
+    </div>
+  <% end %>
+</div>

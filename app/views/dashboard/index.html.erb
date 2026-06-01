@@ -1,0 +1,158 @@
+<% content_for(:title) { "Dashboard — MobileStock Pro" } %>
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Dashboard</h1>
+    <p class="page-subtitle">Welcome back, <%= current_user.name %>! Here's your shop overview.</p>
+  </div>
+  <div class="btn-group">
+    <%= link_to new_sale_path, class: "btn btn-primary", id: "quick-new-sale" do %>
+      🛒 New Sale
+    <% end %>
+    <%= link_to new_product_path, class: "btn btn-secondary", id: "quick-add-product" do %>
+      ➕ Add Product
+    <% end %>
+  </div>
+</div>
+
+<!-- Stats Cards -->
+<div class="stats-grid">
+  <div class="stat-card animate-in">
+    <div class="stat-card-icon revenue">💰</div>
+    <div class="stat-card-value">₹<%= number_with_delimiter(@today_revenue.to_i) %></div>
+    <div class="stat-card-label">Today's Revenue</div>
+  </div>
+
+  <div class="stat-card animate-in">
+    <div class="stat-card-icon items">📦</div>
+    <div class="stat-card-value"><%= @today_items %></div>
+    <div class="stat-card-label">Items Sold Today</div>
+  </div>
+
+  <div class="stat-card animate-in">
+    <div class="stat-card-icon transactions">🧾</div>
+    <div class="stat-card-value"><%= @today_transactions %></div>
+    <div class="stat-card-label">Transactions Today</div>
+  </div>
+
+  <div class="stat-card animate-in">
+    <div class="stat-card-icon stock">📱</div>
+    <div class="stat-card-value"><%= @total_in_stock %> / <%= @total_products %></div>
+    <div class="stat-card-label">Products in Stock</div>
+  </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="quick-actions">
+  <%= link_to new_sale_path, class: "quick-action-btn", id: "qa-new-sale" do %>
+    <div class="icon green">🛒</div>
+    <span>Record Sale</span>
+  <% end %>
+  <%= link_to new_product_path, class: "quick-action-btn", id: "qa-add-product" do %>
+    <div class="icon blue">➕</div>
+    <span>Add Product</span>
+  <% end %>
+  <%= link_to daily_report_path, class: "quick-action-btn", id: "qa-daily-report" do %>
+    <div class="icon purple">📊</div>
+    <span>Today's Report</span>
+  <% end %>
+  <%= link_to products_path(stock_filter: "low"), class: "quick-action-btn", id: "qa-low-stock" do %>
+    <div class="icon amber">⚠️</div>
+    <span>Low Stock (<%= @low_stock_products.size %>)</span>
+  <% end %>
+</div>
+
+<div class="report-grid">
+  <!-- Month Revenue -->
+  <div class="report-section animate-in">
+    <div class="report-section-title">📈 This Month</div>
+    <div class="stat-card-value" style="margin-bottom: 4px;">₹<%= number_with_delimiter(@month_revenue.to_i) %></div>
+    <div class="stat-card-label">Monthly Revenue</div>
+  </div>
+
+  <!-- Payment Breakdown Today -->
+  <div class="report-section animate-in">
+    <div class="report-section-title">💳 Today's Payment Breakdown</div>
+    <% if @payment_breakdown.any? %>
+      <div class="breakdown-list">
+        <% @payment_breakdown.each do |method, amount| %>
+          <div class="breakdown-item">
+            <span class="breakdown-dot <%= method %>"></span>
+            <span class="breakdown-label"><%= method.upcase %></span>
+            <span class="breakdown-value">₹<%= number_with_delimiter(amount.to_i) %></span>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <p class="text-muted" style="font-size: 0.85rem;">No sales recorded today yet.</p>
+    <% end %>
+  </div>
+
+  <!-- Low Stock Alerts -->
+  <div class="report-section animate-in">
+    <div class="report-section-title">⚠️ Low Stock Alerts</div>
+    <% if @low_stock_products.any? %>
+      <% @low_stock_products.each do |product| %>
+        <div class="top-product-item">
+          <span class="badge badge-warning"><%= product.quantity %></span>
+          <span class="top-product-name"><%= product.display_name %></span>
+          <span class="badge badge-<%= product.category == 'mobile' ? 'mobile' : 'accessory' %>"><%= product.category %></span>
+        </div>
+      <% end %>
+    <% else %>
+      <p class="text-muted" style="font-size: 0.85rem;">All products are well-stocked! 🎉</p>
+    <% end %>
+  </div>
+
+  <!-- Recent Sales -->
+  <div class="report-section animate-in">
+    <div class="report-section-title">🕐 Recent Sales</div>
+    <% if @recent_sales.any? %>
+      <% @recent_sales.each do |sale| %>
+        <div class="top-product-item">
+          <div class="top-product-name">
+            <%= sale.product.display_name %>
+            <span class="text-muted" style="font-size: 0.75rem;"> × <%= sale.quantity %></span>
+          </div>
+          <div class="top-product-stats">
+            <div class="top-product-revenue">₹<%= number_with_delimiter(sale.total_amount.to_i) %></div>
+            <div class="top-product-qty"><%= time_ago_in_words(sale.sold_at) %> ago</div>
+          </div>
+        </div>
+      <% end %>
+    <% else %>
+      <p class="text-muted" style="font-size: 0.85rem;">No sales recorded yet. Start selling!</p>
+    <% end %>
+  </div>
+</div>
+
+<% if @out_of_stock_products.any? %>
+  <div class="card animate-in mt-3">
+    <div class="card-header">
+      <h3 class="card-title">🔴 Out of Stock Products</h3>
+      <%= link_to "View All", products_path(stock_filter: "out"), class: "btn btn-sm btn-secondary" %>
+    </div>
+    <div class="table-container" style="border: none;">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>Brand</th>
+            <th>Category</th>
+            <th>Selling Price</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @out_of_stock_products.each do |product| %>
+            <tr>
+              <td><strong><%= product.name %></strong></td>
+              <td><%= product.brand || '—' %></td>
+              <td><span class="badge badge-<%= product.category %>"><%= product.category %></span></td>
+              <td>₹<%= number_with_delimiter(product.selling_price.to_i) %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+<% end %>

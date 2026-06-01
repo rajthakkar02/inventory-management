@@ -1,0 +1,11 @@
+<% content_for(:title) { "Edit #{@user.name} — MobileStock Pro" } %>
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">✏️ Edit Staff Member</h1>
+    <p class="page-subtitle">Update account for <%= @user.name %></p>
+  </div>
+  <%= link_to users_path, class: "btn btn-secondary" do %>← Back to Staff<% end %>
+</div>
+
+<%= render "form", user: @user %>

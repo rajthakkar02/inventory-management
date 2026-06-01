@@ -1,0 +1,130 @@
+<div class="card form-card animate-in" data-controller="product-form">
+  <% if product.errors.any? %>
+    <div class="error-list">
+      <h3>Please fix the following errors:</h3>
+      <ul>
+        <% product.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <%= form_with model: product, html: { id: "product-form" } do |f| %>
+    <!-- Category Selection -->
+    <div class="form-group">
+      <label class="form-label">Category *</label>
+      <div class="filter-tabs" style="margin-bottom: 0;">
+        <label class="filter-tab <%= 'active' if product.category == 'mobile' || product.category.blank? %>"
+               data-action="click->product-form#selectCategory"
+               data-product-form-category-param="mobile"
+               id="category-mobile-tab">
+          📱 Mobile Phone
+          <%= f.radio_button :category, "mobile",
+              style: "display:none",
+              data: { product_form_target: "categoryRadio" },
+              checked: product.category == "mobile" || product.new_record? %>
+        </label>
+        <label class="filter-tab <%= 'active' if product.category == 'accessory' %>"
+               data-action="click->product-form#selectCategory"
+               data-product-form-category-param="accessory"
+               id="category-accessory-tab">
+          🎧 Accessory
+          <%= f.radio_button :category, "accessory",
+              style: "display:none",
+              data: { product_form_target: "categoryRadio" },
+              checked: product.category == "accessory" %>
+        </label>
+      </div>
+    </div>
+
+    <!-- Common Fields -->
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label" for="product_name">Product Name *</label>
+        <%= f.text_field :name, class: "form-input", placeholder: "e.g. iPhone 15 Pro Max", required: true, id: "product_name" %>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="product_brand">Brand</label>
+        <%= f.text_field :brand, class: "form-input", placeholder: "e.g. Apple, Samsung, Boat", id: "product_brand" %>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label" for="product_model_number">Model Number</label>
+        <%= f.text_field :model_number, class: "form-input", placeholder: "e.g. A2849", id: "product_model_number" %>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="product_quantity">Quantity in Stock *</label>
+        <%= f.number_field :quantity, class: "form-input", min: 0, required: true, value: product.quantity || 1, id: "product_quantity" %>
+      </div>
+    </div>
+
+    <!-- Mobile-specific fields -->
+    <div data-product-form-target="mobileFields" class="<%= 'hidden' if product.category == 'accessory' %>">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="product_imei">IMEI Number</label>
+          <%= f.text_field :imei, class: "form-input", placeholder: "15-digit IMEI number", id: "product_imei" %>
+          <div class="form-hint">Unique identifier for mobile devices</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="product_storage">Storage</label>
+          <%= f.select :storage, options_for_select(
+            [["Select Storage", ""], "64GB", "128GB", "256GB", "512GB", "1TB"],
+            product.storage
+          ), {}, { class: "form-select", id: "product_storage" } %>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="product_color">Color</label>
+        <%= f.text_field :color, class: "form-input", placeholder: "e.g. Midnight Black, Silver", id: "product_color" %>
+      </div>
+    </div>
+
+    <!-- Accessory-specific fields -->
+    <div data-product-form-target="accessoryFields" class="<%= 'hidden' unless product.category == 'accessory' %>">
+      <div class="form-group">
+        <label class="form-label" for="product_accessory_type">Accessory Type</label>
+        <%= f.select :accessory_type, options_for_select(
+          [["Select Type", ""],
+           ["📱 Phone Case", "case"],
+           ["🔌 Charger", "charger"],
+           ["🎧 Earphone/Headphone", "earphone"],
+           ["🛡️ Screen Guard", "screen_guard"],
+           ["🔗 Cable", "cable"],
+           ["🔋 Power Bank", "power_bank"],
+           ["🔊 Speaker", "speaker"],
+           ["📦 Other", "other"]],
+          product.accessory_type
+        ), {}, { class: "form-select", id: "product_accessory_type" } %>
+      </div>
+    </div>
+
+    <!-- Pricing -->
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label" for="product_purchase_price">Purchase Price (₹)</label>
+        <%= f.number_field :purchase_price, class: "form-input", step: "0.01", min: 0, placeholder: "Cost price", id: "product_purchase_price" %>
+        <div class="form-hint">Your cost price (optional, used for profit calculation)</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="product_selling_price">Selling Price (₹) *</label>
+        <%= f.number_field :selling_price, class: "form-input", step: "0.01", min: 0, placeholder: "MRP / Selling price", required: true, id: "product_selling_price" %>
+      </div>
+    </div>
+
+    <!-- Description -->
+    <div class="form-group">
+      <label class="form-label" for="product_description">Description</label>
+      <%= f.text_area :description, class: "form-textarea", placeholder: "Additional notes about this product...", rows: 3, id: "product_description" %>
+    </div>
+
+    <div class="btn-group mt-2">
+      <%= f.submit product.persisted? ? "💾 Update Product" : "➕ Add to Stock",
+          class: "btn btn-primary btn-lg", id: "product-submit" %>
+      <%= link_to "Cancel", products_path, class: "btn btn-secondary btn-lg" %>
+    </div>
+  <% end %>
+</div>

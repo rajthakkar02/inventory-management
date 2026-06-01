@@ -1,0 +1,13 @@
+<% content_for(:title) { "Add Product — MobileStock Pro" } %>
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Add New Product</h1>
+    <p class="page-subtitle">Add a new mobile or accessory to your inventory</p>
+  </div>
+  <%= link_to products_path, class: "btn btn-secondary" do %>
+    ← Back to Stock
+  <% end %>
+</div>
+
+<%= render "form", product: @product %>

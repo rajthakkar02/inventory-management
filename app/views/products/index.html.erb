@@ -1,0 +1,141 @@
+<% content_for(:title) { "Stock Management — MobileStock Pro" } %>
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Stock Management</h1>
+    <p class="page-subtitle">Manage your mobile and accessory inventory</p>
+  </div>
+  <%= link_to new_product_path, class: "btn btn-primary", id: "add-product-btn" do %>
+    ➕ Add Product
+  <% end %>
+</div>
+
+<!-- Search Bar -->
+<div class="search-bar" data-controller="search" data-search-url-value="<%= products_path %>">
+  <span class="search-bar-icon">🔍</span>
+  <input type="text"
+         id="product-search"
+         placeholder="Search by name, brand, model, IMEI..."
+         data-search-target="input"
+         data-action="input->search#perform"
+         value="<%= params[:query] %>"
+         autocomplete="off">
+  <div class="search-spinner"></div>
+</div>
+
+<!-- Filter Tabs -->
+<div class="filter-tabs">
+  <%= link_to "All", products_path(query: params[:query]),
+      class: "filter-tab #{'active' if params[:category].blank? && params[:stock_filter].blank?}",
+      id: "filter-all" %>
+  <%= link_to "📱 Mobiles", products_path(category: "mobile", query: params[:query]),
+      class: "filter-tab #{'active' if params[:category] == 'mobile'}",
+      id: "filter-mobiles" %>
+  <%= link_to "🎧 Accessories", products_path(category: "accessory", query: params[:query]),
+      class: "filter-tab #{'active' if params[:category] == 'accessory'}",
+      id: "filter-accessories" %>
+  <%= link_to "⚠️ Low Stock", products_path(stock_filter: "low", query: params[:query]),
+      class: "filter-tab #{'active' if params[:stock_filter] == 'low'}",
+      id: "filter-low-stock" %>
+  <%= link_to "🔴 Out of Stock", products_path(stock_filter: "out", query: params[:query]),
+      class: "filter-tab #{'active' if params[:stock_filter] == 'out'}",
+      id: "filter-out-of-stock" %>
+</div>
+
+<!-- Products Table -->
+<turbo-frame id="products-list">
+  <% if @products.any? %>
+    <div class="table-container animate-in">
+      <table class="data-table" id="products-table">
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>Brand</th>
+            <th>Category</th>
+            <th>Price</th>
+            <th>Stock</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @products.each do |product| %>
+            <tr id="product-row-<%= product.id %>">
+              <td>
+                <strong><%= product.name %></strong>
+                <% if product.mobile? && product.imei.present? %>
+                  <br><span class="text-muted" style="font-size: 0.75rem;">IMEI: <%= product.imei %></span>
+                <% end %>
+                <% if product.color.present? || product.storage.present? %>
+                  <br>
+                  <% if product.color.present? %><span class="text-muted" style="font-size: 0.75rem;">Color: <%= product.color %></span><% end %>
+                  <% if product.storage.present? %><span class="text-muted" style="font-size: 0.75rem;"> | <%= product.storage %></span><% end %>
+                <% end %>
+              </td>
+              <td><%= product.brand || '—' %></td>
+              <td>
+                <span class="badge badge-<%= product.category %>">
+                  <%= product.category == 'mobile' ? '📱' : '🎧' %> <%= product.category %>
+                </span>
+                <% if product.accessory? && product.accessory_type.present? %>
+                  <br><span class="text-muted" style="font-size: 0.72rem;"><%= product.accessory_type.humanize %></span>
+                <% end %>
+              </td>
+              <td>
+                <div>₹<%= number_with_delimiter(product.selling_price.to_i) %></div>
+                <% if product.purchase_price.present? %>
+                  <span class="text-muted" style="font-size: 0.72rem;">Cost: ₹<%= number_with_delimiter(product.purchase_price.to_i) %></span>
+                <% end %>
+              </td>
+              <td>
+                <div class="stock-controls">
+                  <%= button_to adjust_stock_product_path(product, adjustment: -1),
+                      method: :patch,
+                      class: "stock-btn minus",
+                      title: "Decrease stock",
+                      disabled: product.quantity == 0 do %>−<% end %>
+                  <span class="stock-qty"><%= product.quantity %></span>
+                  <%= button_to adjust_stock_product_path(product, adjustment: 1),
+                      method: :patch,
+                      class: "stock-btn plus",
+                      title: "Increase stock" do %>+<% end %>
+                </div>
+              </td>
+              <td>
+                <span class="badge badge-<%= product.stock_status == 'in_stock' ? 'success' : (product.stock_status == 'low_stock' ? 'warning' : 'danger') %>">
+                  <%= product.stock_status_label %>
+                </span>
+              </td>
+              <td>
+                <div class="btn-group">
+                  <%= link_to edit_product_path(product), class: "btn btn-sm btn-secondary", id: "edit-product-#{product.id}" do %>✏️<% end %>
+                  <% if current_user.owner? %>
+                    <%= button_to product_path(product),
+                        method: :delete,
+                        class: "btn btn-sm btn-danger",
+                        data: { turbo_confirm: "Are you sure you want to delete #{product.name}?" },
+                        id: "delete-product-#{product.id}" do %>🗑️<% end %>
+                  <% end %>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <div class="empty-state animate-in">
+      <div class="empty-state-icon">📦</div>
+      <div class="empty-state-text">
+        <% if params[:query].present? %>
+          No products found matching "<%= params[:query] %>"
+        <% else %>
+          No products in stock yet. Add your first product!
+        <% end %>
+      </div>
+      <%= link_to new_product_path, class: "btn btn-primary" do %>
+        ➕ Add Product
+      <% end %>
+    </div>
+  <% end %>
+</turbo-frame>

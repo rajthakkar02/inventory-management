@@ -1,0 +1,125 @@
+<% content_for(:title) { "Sales History — MobileStock Pro" } %>
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Sales History</h1>
+    <p class="page-subtitle">View and filter your sales records</p>
+  </div>
+  <%= link_to new_sale_path, class: "btn btn-primary", id: "new-sale-btn" do %>
+    🛒 New Sale
+  <% end %>
+</div>
+
+<!-- Stats -->
+<div class="stats-grid">
+  <div class="stat-card animate-in">
+    <div class="stat-card-icon revenue">💰</div>
+    <div class="stat-card-value">₹<%= number_with_delimiter(@total_revenue.to_i) %></div>
+    <div class="stat-card-label">Total Revenue</div>
+  </div>
+  <div class="stat-card animate-in">
+    <div class="stat-card-icon items">📦</div>
+    <div class="stat-card-value"><%= @total_items %></div>
+    <div class="stat-card-label">Items Sold</div>
+  </div>
+  <div class="stat-card animate-in">
+    <div class="stat-card-icon transactions">🧾</div>
+    <div class="stat-card-value"><%= @total_transactions %></div>
+    <div class="stat-card-label">Transactions</div>
+  </div>
+</div>
+
+<!-- Filters -->
+<div class="filter-tabs">
+  <%= link_to "All", sales_path,
+      class: "filter-tab #{'active' if params[:date_filter].blank?}", id: "sales-filter-all" %>
+  <%= link_to "Today", sales_path(date_filter: "today"),
+      class: "filter-tab #{'active' if params[:date_filter] == 'today'}", id: "sales-filter-today" %>
+  <%= link_to "This Week", sales_path(date_filter: "this_week"),
+      class: "filter-tab #{'active' if params[:date_filter] == 'this_week'}", id: "sales-filter-week" %>
+  <%= link_to "This Month", sales_path(date_filter: "this_month"),
+      class: "filter-tab #{'active' if params[:date_filter] == 'this_month'}", id: "sales-filter-month" %>
+</div>
+
+<div class="filter-tabs mb-2">
+  <%= link_to "All Payments", sales_path(date_filter: params[:date_filter]),
+      class: "filter-tab #{'active' if params[:payment_method].blank?}", id: "pay-filter-all" %>
+  <%= link_to "💵 Cash", sales_path(date_filter: params[:date_filter], payment_method: "cash"),
+      class: "filter-tab #{'active' if params[:payment_method] == 'cash'}", id: "pay-filter-cash" %>
+  <%= link_to "📱 UPI", sales_path(date_filter: params[:date_filter], payment_method: "upi"),
+      class: "filter-tab #{'active' if params[:payment_method] == 'upi'}", id: "pay-filter-upi" %>
+  <%= link_to "💳 Card", sales_path(date_filter: params[:date_filter], payment_method: "card"),
+      class: "filter-tab #{'active' if params[:payment_method] == 'card'}", id: "pay-filter-card" %>
+</div>
+
+<!-- Sales Table -->
+<% if @sales.any? %>
+  <div class="table-container animate-in">
+    <table class="data-table" id="sales-table">
+      <thead>
+        <tr>
+          <th>Date & Time</th>
+          <th>Product</th>
+          <th>Qty</th>
+          <th>Unit Price</th>
+          <th>Discount</th>
+          <th>Total</th>
+          <th>Payment</th>
+          <th>Customer</th>
+          <th>Sold By</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @sales.each do |sale| %>
+          <tr>
+            <td>
+              <div><%= sale.sold_at.strftime("%d %b %Y") %></div>
+              <span class="text-muted" style="font-size: 0.75rem;"><%= sale.sold_at.strftime("%I:%M %p") %></span>
+            </td>
+            <td>
+              <strong><%= sale.product.name %></strong>
+              <% if sale.product.brand.present? %>
+                <br><span class="text-muted" style="font-size: 0.75rem;"><%= sale.product.brand %></span>
+              <% end %>
+            </td>
+            <td><%= sale.quantity %></td>
+            <td>₹<%= number_with_delimiter(sale.unit_price.to_i) %></td>
+            <td>
+              <% if sale.discount.to_i > 0 %>
+                <span class="text-warning">-₹<%= number_with_delimiter(sale.discount.to_i) %></span>
+              <% else %>
+                —
+              <% end %>
+            </td>
+            <td><strong class="text-success">₹<%= number_with_delimiter(sale.total_amount.to_i) %></strong></td>
+            <td>
+              <span class="badge badge-<%= sale.payment_method == 'cash' ? 'success' : (sale.payment_method == 'upi' ? 'info' : 'warning') %>">
+                <%= sale.payment_method == 'cash' ? '💵' : (sale.payment_method == 'upi' ? '📱' : '💳') %>
+                <%= sale.payment_method.upcase %>
+              </span>
+            </td>
+            <td>
+              <% if sale.customer_name.present? %>
+                <div><%= sale.customer_name %></div>
+                <% if sale.customer_phone.present? %>
+                  <span class="text-muted" style="font-size: 0.75rem;"><%= sale.customer_phone %></span>
+                <% end %>
+              <% else %>
+                <span class="text-muted">Walk-in</span>
+              <% end %>
+            </td>
+            <td><span class="text-muted"><%= sale.user.name %></span></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% else %>
+  <div class="empty-state animate-in">
+    <div class="empty-state-icon">🛒</div>
+    <div class="empty-state-text">No sales found for the selected filters.</div>
+    <%= link_to new_sale_path, class: "btn btn-primary" do %>
+      🛒 Record First Sale
+    <% end %>
+  </div>
+<% end %>

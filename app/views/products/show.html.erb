@@ -1,0 +1,114 @@
+<% content_for(:title) { "#{@product.display_name} — MobileStock Pro" } %>
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title"><%= @product.display_name %></h1>
+    <p class="page-subtitle">
+      <span class="badge badge-<%= @product.category %>"><%= @product.category == 'mobile' ? '📱' : '🎧' %> <%= @product.category.capitalize %></span>
+      <span class="badge badge-<%= @product.stock_status == 'in_stock' ? 'success' : (@product.stock_status == 'low_stock' ? 'warning' : 'danger') %>">
+        <%= @product.stock_status_label %> (<%= @product.quantity %>)
+      </span>
+    </p>
+  </div>
+  <div class="btn-group">
+    <%= link_to edit_product_path(@product), class: "btn btn-secondary" do %>✏️ Edit<% end %>
+    <%= link_to products_path, class: "btn btn-secondary" do %>← Back<% end %>
+  </div>
+</div>
+
+<div class="report-grid">
+  <div class="report-section animate-in">
+    <div class="report-section-title">📋 Product Details</div>
+    <div class="top-product-item">
+      <span class="product-info-label">Brand</span>
+      <span class="product-info-value"><%= @product.brand || '—' %></span>
+    </div>
+    <div class="top-product-item">
+      <span class="product-info-label">Model</span>
+      <span class="product-info-value"><%= @product.model_number || '—' %></span>
+    </div>
+    <% if @product.mobile? %>
+      <div class="top-product-item">
+        <span class="product-info-label">IMEI</span>
+        <span class="product-info-value font-mono"><%= @product.imei || '—' %></span>
+      </div>
+      <div class="top-product-item">
+        <span class="product-info-label">Storage</span>
+        <span class="product-info-value"><%= @product.storage || '—' %></span>
+      </div>
+      <div class="top-product-item">
+        <span class="product-info-label">Color</span>
+        <span class="product-info-value"><%= @product.color || '—' %></span>
+      </div>
+    <% end %>
+    <% if @product.accessory? %>
+      <div class="top-product-item">
+        <span class="product-info-label">Type</span>
+        <span class="product-info-value"><%= @product.accessory_type&.humanize || '—' %></span>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="report-section animate-in">
+    <div class="report-section-title">💰 Pricing & Stock</div>
+    <div class="top-product-item">
+      <span class="product-info-label">Selling Price</span>
+      <span class="product-info-value text-success">₹<%= number_with_delimiter(@product.selling_price.to_i) %></span>
+    </div>
+    <% if @product.purchase_price.present? %>
+      <div class="top-product-item">
+        <span class="product-info-label">Purchase Price</span>
+        <span class="product-info-value">₹<%= number_with_delimiter(@product.purchase_price.to_i) %></span>
+      </div>
+      <div class="top-product-item">
+        <span class="product-info-label">Profit per Unit</span>
+        <span class="product-info-value text-success">₹<%= number_with_delimiter(@product.profit_per_unit.to_i) %></span>
+      </div>
+    <% end %>
+    <div class="top-product-item">
+      <span class="product-info-label">Current Stock</span>
+      <span class="product-info-value font-bold"><%= @product.quantity %></span>
+    </div>
+    <% if @product.description.present? %>
+      <div class="mt-2">
+        <span class="product-info-label">Description</span>
+        <p class="text-muted mt-1" style="font-size: 0.85rem;"><%= @product.description %></p>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<!-- Recent Sales -->
+<% if @recent_sales.any? %>
+  <div class="card animate-in mt-3">
+    <div class="card-header">
+      <h3 class="card-title">📋 Recent Sales</h3>
+    </div>
+    <div class="table-container" style="border: none;">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Qty</th>
+            <th>Price</th>
+            <th>Total</th>
+            <th>Customer</th>
+            <th>Sold By</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @recent_sales.each do |sale| %>
+            <tr>
+              <td><%= sale.sold_at.strftime("%d %b %Y, %I:%M %p") %></td>
+              <td><%= sale.quantity %></td>
+              <td>₹<%= number_with_delimiter(sale.unit_price.to_i) %></td>
+              <td class="text-success font-bold">₹<%= number_with_delimiter(sale.total_amount.to_i) %></td>
+              <td><%= sale.customer_name || 'Walk-in' %></td>
+              <td class="text-muted"><%= sale.user.name %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+<% end %>
