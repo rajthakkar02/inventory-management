@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-controller="theme">
   <head>
     <title>Login — MobileStock Pro</title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -7,22 +7,25 @@
     <meta name="theme-color" content="#0a0e1a">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
-
     <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
+    <script>if(localStorage.getItem('theme')==='light')document.documentElement.classList.add('light')</script>
   </head>
+  <body class="leading-relaxed">
+    <!-- Theme toggle on login page -->
+    <button class="theme-toggle-btn fixed top-4 right-4 z-50" data-action="click->theme#toggle" title="Toggle Dark/Light Theme" id="login-theme-toggle">
+      <span data-theme-target="icon">☀️</span>
+    </button>
 
-  <body>
     <%= yield %>
 
-    <!-- Flash Messages -->
     <% if flash.any? %>
-      <div class="flash-container" data-controller="notification">
+      <div class="fixed top-5 right-16 z-[1000] flex flex-col gap-2.5 max-w-[400px]" data-controller="notification">
         <% flash.each do |type, message| %>
           <div class="flash-message <%= type %>" data-notification-target="message" data-action="click->notification#dismiss">
             <span><%= type == 'notice' ? '✅' : '⚠️' %></span>
             <span><%= message %></span>
-            <button class="flash-dismiss" data-action="click->notification#dismiss">✕</button>
+            <button class="ml-auto opacity-60 cursor-pointer p-0.5 bg-transparent border-none text-inherit text-lg leading-none hover:opacity-100" data-action="click->notification#dismiss">✕</button>
           </div>
         <% end %>
       </div>

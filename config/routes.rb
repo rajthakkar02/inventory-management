@@ -4,28 +4,28 @@ Rails.application.routes.draw do
   post   "login",  to: "sessions#create"
   delete "logout", to: "sessions#destroy", as: :logout
 
-  # Dashboard
+  # Dashboard (superadmin only)
   root "dashboard#index"
 
-  # Products / Stock
+  # Products / Stock (superadmin & admin)
   resources :products do
     member do
       patch :adjust_stock
     end
   end
 
-  # Sales
-  resources :sales, only: [:index, :new, :create]
+  # Sales (superadmin & admin)
+  resources :sales, only: [ :index, :new, :create ]
   get "sales/product_info", to: "sales#product_info", as: :product_info
 
-  # Reports
+  # Reports (superadmin only)
   get "reports/daily",          to: "reports#daily",          as: :daily_report
   get "reports/monthly",        to: "reports#monthly",        as: :monthly_report
   get "reports/financial_year", to: "reports#financial_year",  as: :financial_year_report
   get "reports/export_csv",     to: "reports#export_csv",      as: :export_csv
 
-  # User Management (owner only)
-  resources :users, except: [:show, :destroy] do
+  # User Management (superadmin only)
+  resources :users, except: [ :show, :destroy ] do
     member do
       patch :toggle_active
     end

@@ -1,130 +1,81 @@
 <% content_for(:title) { "Daily Report — MobileStock Pro" } %>
-
-<div class="page-header">
+<div class="flex items-center justify-between flex-wrap gap-4 mb-7">
   <div>
     <h1 class="page-title">📅 Daily Report</h1>
-    <p class="page-subtitle"><%= @date.strftime("%A, %d %B %Y") %></p>
+    <p class="text-sm text-[var(--color-txt-muted)] mt-1"><%= @date.strftime("%A, %d %B %Y") %></p>
   </div>
-  <div class="btn-group">
+  <div class="flex gap-2 flex-wrap">
     <%= link_to daily_report_path(date: @date - 1.day), class: "btn btn-secondary btn-sm" do %>← Previous Day<% end %>
-    <% if @date < Date.current %>
-      <%= link_to daily_report_path(date: @date + 1.day), class: "btn btn-secondary btn-sm" do %>Next Day →<% end %>
-    <% end %>
-    <% unless @date == Date.current %>
-      <%= link_to daily_report_path, class: "btn btn-primary btn-sm" do %>Today<% end %>
-    <% end %>
+    <% if @date < Date.current %><%= link_to daily_report_path(date: @date + 1.day), class: "btn btn-secondary btn-sm" do %>Next Day →<% end %><% end %>
+    <% unless @date == Date.current %><%= link_to daily_report_path, class: "btn btn-primary btn-sm" do %>Today<% end %><% end %>
   </div>
 </div>
 
-<!-- Stats -->
-<div class="stats-grid">
-  <div class="stat-card animate-in">
-    <div class="stat-card-icon revenue">💰</div>
-    <div class="stat-card-value">₹<%= number_with_delimiter(@total_revenue.to_i) %></div>
-    <div class="stat-card-label">Total Revenue</div>
-  </div>
-  <div class="stat-card animate-in">
-    <div class="stat-card-icon items">📦</div>
-    <div class="stat-card-value"><%= @total_items %></div>
-    <div class="stat-card-label">Items Sold</div>
-  </div>
-  <div class="stat-card animate-in">
-    <div class="stat-card-icon transactions">🧾</div>
-    <div class="stat-card-value"><%= @total_transactions %></div>
-    <div class="stat-card-label">Transactions</div>
-  </div>
+<div class="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-5 mb-7">
+  <div class="stat-card animate-in"><div class="w-11 h-11 rounded-xl flex items-center justify-center text-xl mb-4" style="background:var(--color-success-bg)">💰</div><div class="text-3xl font-extrabold text-[var(--color-txt-primary)] leading-none mb-1">₹<%= number_with_delimiter(@total_revenue.to_i) %></div><div class="text-xs text-[var(--color-txt-muted)] font-medium uppercase tracking-wide">Total Revenue</div></div>
+  <div class="stat-card animate-in"><div class="w-11 h-11 rounded-xl flex items-center justify-center text-xl mb-4" style="background:var(--color-info-bg)">📦</div><div class="text-3xl font-extrabold text-[var(--color-txt-primary)] leading-none mb-1"><%= @total_items %></div><div class="text-xs text-[var(--color-txt-muted)] font-medium uppercase tracking-wide">Items Sold</div></div>
+  <div class="stat-card animate-in"><div class="w-11 h-11 rounded-xl flex items-center justify-center text-xl mb-4" style="background:rgba(168,85,247,0.12)">🧾</div><div class="text-3xl font-extrabold text-[var(--color-txt-primary)] leading-none mb-1"><%= @total_transactions %></div><div class="text-xs text-[var(--color-txt-muted)] font-medium uppercase tracking-wide">Transactions</div></div>
 </div>
 
-<div class="report-grid">
-  <!-- Payment Breakdown -->
-  <div class="report-section animate-in">
-    <div class="report-section-title">💳 Payment Breakdown</div>
+<div class="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-5 mb-7">
+  <div class="glass-card animate-in">
+    <div class="text-[0.95rem] font-bold text-[var(--color-txt-primary)] mb-4">💳 Payment Breakdown</div>
     <% if @payment_breakdown.any? %>
       <% max_val = @payment_breakdown.values.max.to_f %>
-      <div class="breakdown-list">
+      <div class="flex flex-col gap-3">
         <% @payment_breakdown.each do |method, amount| %>
-          <div class="breakdown-item">
+          <div class="flex items-center gap-3">
             <span class="breakdown-dot <%= method %>"></span>
-            <span class="breakdown-label"><%= method.upcase %></span>
-            <div class="breakdown-bar-track">
-              <div class="breakdown-bar-fill <%= method %>" style="width: <%= max_val > 0 ? (amount / max_val * 100).round : 0 %>%"></div>
-            </div>
-            <span class="breakdown-value">₹<%= number_with_delimiter(amount.to_i) %></span>
+            <span class="flex-1 text-sm text-[var(--color-txt-secondary)] uppercase font-medium"><%= method.upcase %></span>
+            <div class="flex-[2] h-1.5 rounded-sm overflow-hidden" style="background:var(--color-bg-glass)"><div class="breakdown-bar-fill <%= method %>" style="width:<%= max_val > 0 ? (amount / max_val * 100).round : 0 %>%"></div></div>
+            <span class="text-sm font-bold text-[var(--color-txt-primary)]">₹<%= number_with_delimiter(amount.to_i) %></span>
           </div>
         <% end %>
       </div>
-    <% else %>
-      <p class="text-muted">No sales data for this day.</p>
-    <% end %>
+    <% else %><p class="text-[var(--color-txt-muted)]">No sales data for this day.</p><% end %>
   </div>
 
-  <!-- Category Breakdown -->
-  <div class="report-section animate-in">
-    <div class="report-section-title">📊 Category Breakdown</div>
+  <div class="glass-card animate-in">
+    <div class="text-[0.95rem] font-bold text-[var(--color-txt-primary)] mb-4">📊 Category Breakdown</div>
     <% if @category_breakdown.values.sum > 0 %>
-      <div class="breakdown-list">
+      <div class="flex flex-col gap-3">
         <% @category_breakdown.each do |cat, amount| %>
-          <div class="breakdown-item">
-            <span class="breakdown-dot <%= cat == 'Mobiles' ? 'upi' : 'cash' %>"></span>
-            <span class="breakdown-label"><%= cat %></span>
-            <span class="breakdown-value">₹<%= number_with_delimiter(amount.to_i) %></span>
-          </div>
+          <div class="flex items-center gap-3"><span class="breakdown-dot <%= cat == 'Mobiles' ? 'upi' : 'cash' %>"></span><span class="flex-1 text-sm text-[var(--color-txt-secondary)] font-medium"><%= cat %></span><span class="text-sm font-bold text-[var(--color-txt-primary)]">₹<%= number_with_delimiter(amount.to_i) %></span></div>
         <% end %>
       </div>
-    <% else %>
-      <p class="text-muted">No sales data for this day.</p>
-    <% end %>
+    <% else %><p class="text-[var(--color-txt-muted)]">No sales data for this day.</p><% end %>
   </div>
 
-  <!-- Top Products -->
-  <div class="report-section animate-in">
-    <div class="report-section-title">🏆 Top Selling Products</div>
+  <div class="glass-card animate-in">
+    <div class="text-[0.95rem] font-bold text-[var(--color-txt-primary)] mb-4">🏆 Top Selling Products</div>
     <% if @top_products.any? %>
       <% @top_products.each_with_index do |product, index| %>
-        <div class="top-product-item">
-          <span class="top-product-rank"><%= index + 1 %></span>
-          <span class="top-product-name"><%= product.brand %> <%= product.name %></span>
-          <div class="top-product-stats">
-            <div class="top-product-revenue">₹<%= number_with_delimiter(product.total_revenue.to_i) %></div>
-            <div class="top-product-qty"><%= product.total_qty %> sold</div>
-          </div>
+        <div class="flex items-center gap-3 py-2.5 border-b border-[var(--color-border-light)] last:border-b-0">
+          <span class="w-[26px] h-[26px] rounded-full flex items-center justify-center text-xs font-bold text-[var(--color-txt-muted)] shrink-0" style="background:var(--color-bg-glass)"><%= index + 1 %></span>
+          <span class="flex-1 text-sm text-[var(--color-txt-primary)] font-medium"><%= product.brand %> <%= product.name %></span>
+          <div class="text-right"><div class="text-sm font-bold text-[var(--color-success)]">₹<%= number_with_delimiter(product.total_revenue.to_i) %></div><div class="text-xs text-[var(--color-txt-muted)]"><%= product.total_qty %> sold</div></div>
         </div>
       <% end %>
-    <% else %>
-      <p class="text-muted">No products sold on this day.</p>
-    <% end %>
+    <% else %><p class="text-[var(--color-txt-muted)]">No products sold on this day.</p><% end %>
   </div>
 </div>
 
-<!-- Sales Details -->
 <% if @sales.any? %>
-  <div class="card animate-in mt-3">
-    <div class="card-header">
-      <h3 class="card-title">📋 All Sales on <%= @date.strftime("%d %b %Y") %></h3>
-    </div>
-    <div class="table-container" style="border: none;">
+  <div class="glass-card animate-in mt-6">
+    <div class="flex items-center justify-between mb-5 pb-4 border-b border-[var(--color-border-light)]"><h3 class="text-base font-bold text-[var(--color-txt-primary)]">📋 All Sales on <%= @date.strftime("%d %b %Y") %></h3></div>
+    <div class="overflow-x-auto rounded-2xl border border-[var(--color-border)]" style="background:var(--color-bg-card)">
       <table class="data-table">
-        <thead>
-          <tr>
-            <th>Time</th>
-            <th>Product</th>
-            <th>Qty</th>
-            <th>Total</th>
-            <th>Payment</th>
-            <th>Customer</th>
-            <th>Sold By</th>
-          </tr>
-        </thead>
+        <thead><tr><th>Time</th><th>Product</th><th>Qty</th><th>Total</th><th>Payment</th><th>Salesman</th><th>Sold By</th></tr></thead>
         <tbody>
           <% @sales.each do |sale| %>
             <tr>
               <td><%= sale.sold_at.strftime("%I:%M %p") %></td>
               <td><strong><%= sale.product.display_name %></strong></td>
               <td><%= sale.quantity %></td>
-              <td class="text-success font-bold">₹<%= number_with_delimiter(sale.total_amount.to_i) %></td>
+              <td class="text-[var(--color-success)] font-bold">₹<%= number_with_delimiter(sale.total_amount.to_i) %></td>
               <td><span class="badge badge-<%= sale.payment_method == 'cash' ? 'success' : (sale.payment_method == 'upi' ? 'info' : 'warning') %>"><%= sale.payment_method.upcase %></span></td>
-              <td><%= sale.customer_name.present? ? sale.customer_name : 'Walk-in' %></td>
-              <td class="text-muted"><%= sale.user.name %></td>
+              <td><%= sale.salesman_name || sale.user.name %></td>
+              <td class="text-[var(--color-txt-muted)]"><%= sale.user.name %></td>
             </tr>
           <% end %>
         </tbody>

@@ -24,10 +24,28 @@ class ApplicationController < ActionController::Base
     end
   end
 
-  def require_owner!
-    unless current_user&.owner?
+  def require_superadmin!
+    unless current_user&.superadmin?
       flash[:alert] = "You don't have permission to access this page."
-      redirect_to root_path
+      redirect_to safe_redirect_path
+    end
+  end
+
+  def require_admin_or_above!
+    unless current_user&.can_manage_products?
+      flash[:alert] = "You don't have permission to access this page."
+      redirect_to safe_redirect_path
+    end
+  end
+
+  # Redirect to a page the user CAN access (avoids redirect loops)
+  def safe_redirect_path
+    if current_user&.superadmin?
+      root_path
+    elsif current_user&.can_manage_products?
+      products_path
+    else
+      sales_path
     end
   end
 end

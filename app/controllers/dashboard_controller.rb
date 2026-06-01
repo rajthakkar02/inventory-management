@@ -1,5 +1,6 @@
 class DashboardController < ApplicationController
   before_action :require_login
+  before_action :require_superadmin!
 
   def index
     @today_sales = Sale.today

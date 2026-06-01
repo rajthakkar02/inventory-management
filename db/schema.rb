@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_01_000003) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_01_000004) do
   create_table "products", force: :cascade do |t|
     t.string "accessory_type"
     t.boolean "active", default: true, null: false
@@ -31,27 +31,22 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_01_000003) do
     t.index ["category"], name: "index_products_on_category"
     t.index ["imei"], name: "index_products_on_imei", unique: true, where: "imei IS NOT NULL"
     t.index ["name", "brand", "category"], name: "index_products_on_name_and_brand_and_category"
-    t.index ["quantity"], name: "index_products_on_quantity"
   end
 
   create_table "sales", force: :cascade do |t|
     t.datetime "created_at", null: false
-    t.string "customer_name"
-    t.string "customer_phone"
     t.decimal "discount", precision: 10, scale: 2, default: "0.0"
     t.text "notes"
     t.string "payment_method", default: "cash", null: false
     t.integer "product_id", null: false
     t.integer "quantity", default: 1, null: false
+    t.string "salesman_name"
     t.datetime "sold_at", null: false
     t.decimal "total_amount", precision: 10, scale: 2, null: false
     t.decimal "unit_price", precision: 10, scale: 2, null: false
     t.datetime "updated_at", null: false
     t.integer "user_id", null: false
-    t.index ["customer_phone"], name: "index_sales_on_customer_phone"
-    t.index ["payment_method"], name: "index_sales_on_payment_method"
     t.index ["product_id"], name: "index_sales_on_product_id"
-    t.index ["sold_at"], name: "index_sales_on_sold_at"
     t.index ["user_id"], name: "index_sales_on_user_id"
   end
 

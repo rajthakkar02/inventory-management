@@ -1,13 +1,9 @@
 <% content_for(:title) { "Edit #{@product.name} — MobileStock Pro" } %>
-
-<div class="page-header">
+<div class="flex items-center justify-between flex-wrap gap-4 mb-7">
   <div>
     <h1 class="page-title">Edit Product</h1>
-    <p class="page-subtitle">Update details for <%= @product.display_name %></p>
+    <p class="text-sm text-[var(--color-txt-muted)] mt-1">Update details for <%= @product.display_name %></p>
   </div>
-  <%= link_to products_path, class: "btn btn-secondary" do %>
-    ← Back to Stock
-  <% end %>
+  <%= link_to products_path, class: "btn btn-secondary" do %>← Back to Stock<% end %>
 </div>
-
 <%= render "form", product: @product %>

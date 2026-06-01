@@ -1,7 +1,8 @@
 class ProductsController < ApplicationController
   before_action :require_login
   before_action :set_product, only: [:show, :edit, :update, :destroy, :adjust_stock]
-  before_action :require_owner!, only: [:destroy]
+  before_action :require_admin_or_above!, only: [:new, :create, :edit, :update, :destroy, :adjust_stock]
+  before_action :require_superadmin!, only: [:destroy]
 
   def index
     @products = Product.active_products
@@ -22,7 +23,7 @@ class ProductsController < ApplicationController
   end
 
   def show
-    @recent_sales = @product.sales.order(sold_at: :desc).limit(10)
+    @recent_sales = @product.sales.includes(:user).order(sold_at: :desc).limit(10)
   end
 
   def new

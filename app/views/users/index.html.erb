@@ -1,46 +1,26 @@
 <% content_for(:title) { "Staff Management — MobileStock Pro" } %>
-
-<div class="page-header">
+<div class="flex items-center justify-between flex-wrap gap-4 mb-7">
   <div>
-    <h1 class="page-title">👥 Staff Management</h1>
-    <p class="page-subtitle">Manage staff accounts and access</p>
+    <h1 class="page-title">Staff Management</h1>
+    <p class="text-sm text-[var(--color-txt-muted)] mt-1">Manage staff accounts and access</p>
   </div>
-  <%= link_to new_user_path, class: "btn btn-primary", id: "add-staff-btn" do %>
-    ➕ Add Staff
-  <% end %>
+  <%= link_to new_user_path, class: "btn btn-primary", id: "add-staff-btn" do %>➕ Add Staff Member<% end %>
 </div>
 
-<div class="animate-in">
-  <% @users.each do |user| %>
-    <div class="user-card <%= 'inactive' unless user.active? %>" id="user-card-<%= user.id %>">
-      <div class="user-card-avatar"><%= user.name[0].upcase %></div>
-      <div class="user-card-info">
-        <div class="user-card-name">
-          <%= user.name %>
-          <% if user == current_user %>
-            <span class="badge badge-info" style="margin-left: 6px;">You</span>
-          <% end %>
-        </div>
-        <div class="user-card-email"><%= user.email %></div>
-      </div>
-      <span class="badge badge-<%= user.owner? ? 'info' : 'neutral' %>">
-        <%= user.display_role %>
-      </span>
-      <span class="badge badge-<%= user.active? ? 'success' : 'danger' %>">
-        <%= user.active? ? 'Active' : 'Inactive' %>
-      </span>
-      <div class="user-card-actions">
-        <%= link_to edit_user_path(user), class: "btn btn-sm btn-secondary", id: "edit-user-#{user.id}" do %>✏️<% end %>
-        <% unless user == current_user %>
-          <%= button_to toggle_active_user_path(user),
-              method: :patch,
-              class: "btn btn-sm #{user.active? ? 'btn-danger' : 'btn-success'}",
-              data: { turbo_confirm: "#{user.active? ? 'Deactivate' : 'Activate'} #{user.name}?" },
-              id: "toggle-user-#{user.id}" do %>
-            <%= user.active? ? '🚫' : '✅' %>
-          <% end %>
-        <% end %>
-      </div>
+<% @users.each do |user| %>
+  <div class="user-card <%= 'inactive' unless user.active? %> animate-in" id="user-card-<%= user.id %>">
+    <div class="w-11 h-11 rounded-full flex items-center justify-center font-bold text-base shrink-0" style="background:linear-gradient(135deg,#667eea,#764ba2)"><%= user.name[0].upcase %></div>
+    <div class="flex-1">
+      <div class="font-semibold text-[var(--color-txt-primary)] text-[0.95rem]"><%= user.name %></div>
+      <div class="text-xs text-[var(--color-txt-muted)]"><%= user.email %></div>
     </div>
-  <% end %>
-</div>
+    <span class="badge badge-<%= user.superadmin? ? 'info' : (user.admin? ? 'warning' : 'neutral') %>"><%= user.display_role %></span>
+    <% if user.active? %><span class="badge badge-success">Active</span><% else %><span class="badge badge-danger">Inactive</span><% end %>
+    <div class="flex gap-2">
+      <%= link_to edit_user_path(user), class: "btn btn-sm btn-secondary", id: "edit-user-#{user.id}" do %>✏️ Edit<% end %>
+      <% unless user == current_user || user.superadmin? %>
+        <%= button_to toggle_active_user_path(user), method: :patch, class: "btn btn-sm #{user.active? ? 'btn-danger' : 'btn-success'}", id: "toggle-user-#{user.id}" do %><%= user.active? ? '🔒 Deactivate' : '🔓 Activate' %><% end %>
+      <% end %>
+    </div>
+  </div>
+<% end %>

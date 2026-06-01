@@ -28,9 +28,9 @@ class Sale < ApplicationRecord
     today = Date.current
     fy_start = if today.month >= 4
                  Date.new(today.year, 4, 1)
-               else
+    else
                  Date.new(today.year - 1, 4, 1)
-               end
+    end
     fy_end = fy_start + 1.year - 1.day
     where(sold_at: fy_start.beginning_of_day..fy_end.end_of_day)
   }
@@ -95,7 +95,7 @@ class Sale < ApplicationRecord
   def self.financial_year_range(date = Date.current)
     fy_start = date.month >= 4 ? Date.new(date.year, 4, 1) : Date.new(date.year - 1, 4, 1)
     fy_end = fy_start + 1.year - 1.day
-    [fy_start, fy_end]
+    [ fy_start, fy_end ]
   end
 
   private

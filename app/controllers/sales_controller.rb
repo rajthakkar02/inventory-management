@@ -32,6 +32,7 @@ class SalesController < ApplicationController
   def create
     @sale = Sale.new(sale_params)
     @sale.user = current_user
+    @sale.salesman_name = current_user.name if @sale.salesman_name.blank?
 
     if @sale.save
       flash[:notice] = "Sale recorded! #{@sale.product.display_name} × #{@sale.quantity} = ₹#{@sale.total_amount}"
@@ -62,7 +63,7 @@ class SalesController < ApplicationController
   def sale_params
     params.require(:sale).permit(
       :product_id, :quantity, :unit_price, :discount,
-      :customer_name, :customer_phone, :payment_method, :notes
+      :salesman_name, :payment_method, :notes
     )
   end
 end

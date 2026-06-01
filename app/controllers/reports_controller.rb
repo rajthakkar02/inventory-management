@@ -1,5 +1,6 @@
 class ReportsController < ApplicationController
   before_action :require_login
+  before_action :require_superadmin!
 
   def daily
     @date = params[:date].present? ? Date.parse(params[:date]) : Date.current
@@ -13,7 +14,6 @@ class ReportsController < ApplicationController
     @payment_breakdown = @sales.revenue_by_payment_method
     @top_products = @sales.top_selling_products(5)
 
-    # Category breakdown
     mobile_sales = @sales.joins(:product).where(products: { category: "mobile" })
     accessory_sales = @sales.joins(:product).where(products: { category: "accessory" })
     @category_breakdown = {
@@ -38,7 +38,6 @@ class ReportsController < ApplicationController
 
     @daily_data = @sales.daily_breakdown(@start_date, @end_date)
 
-    # Category breakdown
     mobile_sales = @sales.joins(:product).where(products: { category: "mobile" })
     accessory_sales = @sales.joins(:product).where(products: { category: "accessory" })
     @category_breakdown = {
@@ -66,7 +65,6 @@ class ReportsController < ApplicationController
     @top_products = @sales.top_selling_products(10)
     @monthly_data = @sales.monthly_breakdown(@fy_start, @fy_end)
 
-    # Category breakdown
     mobile_sales = @sales.joins(:product).where(products: { category: "mobile" })
     accessory_sales = @sales.joins(:product).where(products: { category: "accessory" })
     @category_breakdown = {
@@ -74,7 +72,6 @@ class ReportsController < ApplicationController
       "Accessories" => accessory_sales.sum(:total_amount)
     }
 
-    # Calculate profit if purchase prices available
     @total_cost = @sales.joins(:product).sum("products.purchase_price * sales.quantity")
     @estimated_profit = @total_revenue - @total_cost if @total_cost > 0
   end
@@ -84,7 +81,7 @@ class ReportsController < ApplicationController
     @sales = Sale.includes(:product, :user).in_date_range(@fy_start, @fy_end).order(sold_at: :asc)
 
     csv_data = CSV.generate(headers: true) do |csv|
-      csv << ["Date", "Product", "Brand", "Category", "Quantity", "Unit Price", "Discount", "Total", "Payment", "Customer", "Phone", "Sold By"]
+      csv << ["Date", "Product", "Brand", "Category", "Quantity", "Unit Price", "Discount", "Total", "Payment", "Salesman", "Sold By"]
       @sales.each do |sale|
         csv << [
           sale.sold_at.strftime("%d-%m-%Y %I:%M %p"),
@@ -96,8 +93,7 @@ class ReportsController < ApplicationController
           sale.discount,
           sale.total_amount,
           sale.payment_method.upcase,
-          sale.customer_name,
-          sale.customer_phone,
+          sale.salesman_name || sale.user.name,
           sale.user.name
         ]
       end

@@ -1,11 +1,9 @@
-<% content_for(:title) { "Add Staff — MobileStock Pro" } %>
-
-<div class="page-header">
+<% content_for(:title) { "Add Staff Member — MobileStock Pro" } %>
+<div class="flex items-center justify-between flex-wrap gap-4 mb-7">
   <div>
-    <h1 class="page-title">➕ Add Staff Member</h1>
-    <p class="page-subtitle">Create a new staff account</p>
+    <h1 class="page-title">Add Staff Member</h1>
+    <p class="text-sm text-[var(--color-txt-muted)] mt-1">Create a new staff account</p>
   </div>
   <%= link_to users_path, class: "btn btn-secondary" do %>← Back to Staff<% end %>
 </div>
-
 <%= render "form", user: @user %>

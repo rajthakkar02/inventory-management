@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-controller="theme">
   <head>
     <title><%= content_for(:title) || "MobileStock Pro — Inventory Management" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -10,111 +10,104 @@
     <meta name="theme-color" content="#0a0e1a">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
-
     <%= yield :head %>
-
     <link rel="icon" href="/icon.png" type="image/png">
     <link rel="icon" href="/icon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/icon.png">
-
     <%# Includes all stylesheet files in app/assets/stylesheets %>
     <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
+    <script>if(localStorage.getItem('theme')==='light')document.documentElement.classList.add('light')</script>
   </head>
 
-  <body>
+  <body class="leading-relaxed">
     <% if logged_in? %>
-      <div class="app-layout" data-controller="sidebar">
-        <!-- Mobile Menu Button -->
-        <button class="mobile-menu-btn" data-action="click->sidebar#toggle" id="mobile-menu-toggle">
-          ☰
-        </button>
-        <div class="mobile-overlay" data-sidebar-target="overlay" data-action="click->sidebar#close" id="mobile-overlay"></div>
+      <div class="flex min-h-screen" data-controller="sidebar">
+        <button class="hidden fixed top-4 left-4 z-[200] w-11 h-11 rounded-lg items-center justify-center text-xl cursor-pointer border border-[var(--color-border)] text-[var(--color-txt-primary)]" style="background:var(--color-bg-card);backdrop-filter:blur(12px)" data-action="click->sidebar#toggle" id="mobile-menu-toggle">☰</button>
+        <div class="hidden fixed inset-0 bg-black/60 z-[90]" data-sidebar-target="overlay" data-action="click->sidebar#close" id="mobile-overlay"></div>
 
-        <!-- Sidebar -->
         <aside class="sidebar" data-sidebar-target="sidebar" id="main-sidebar">
-          <div class="sidebar-brand">
-            <div class="sidebar-brand-icon">📱</div>
+          <div class="px-5 py-6 border-b border-[var(--color-border)] flex items-center gap-3">
+            <div class="w-[42px] h-[42px] rounded-xl flex items-center justify-center text-xl shrink-0" style="background:linear-gradient(135deg,#667eea,#764ba2);box-shadow:0 0 20px rgba(102,126,234,0.3)">📱</div>
             <div>
-              <h1>MobileStock</h1>
-              <span>Pro Dashboard</span>
+              <h1 class="text-lg font-bold text-[var(--color-txt-primary)] leading-tight">MobileStock</h1>
+              <span class="text-[0.7rem] text-[var(--color-txt-muted)] uppercase tracking-wider">Pro Dashboard</span>
             </div>
           </div>
 
-          <nav class="sidebar-nav">
-            <div class="sidebar-section">
-              <div class="sidebar-section-title">Main</div>
+          <nav class="flex-1 px-3 py-4">
+            <% if current_user&.can_view_dashboard? %>
+            <div class="mb-6">
+              <div class="text-[0.65rem] font-semibold text-[var(--color-txt-muted)] uppercase tracking-[1.5px] px-3 mb-2">Main</div>
               <%= link_to root_path, class: "sidebar-link #{'active' if controller_name == 'dashboard'}", id: "nav-dashboard" do %>
-                <span class="sidebar-link-icon">📊</span>
-                Dashboard
+                <span class="w-5 text-center text-base shrink-0">📊</span> Dashboard
               <% end %>
             </div>
+            <% end %>
 
-            <div class="sidebar-section">
-              <div class="sidebar-section-title">Inventory</div>
+            <div class="mb-6">
+              <div class="text-[0.65rem] font-semibold text-[var(--color-txt-muted)] uppercase tracking-[1.5px] px-3 mb-2">Inventory</div>
               <%= link_to products_path, class: "sidebar-link #{'active' if controller_name == 'products' && action_name == 'index'}", id: "nav-products" do %>
-                <span class="sidebar-link-icon">📦</span>
-                All Products
+                <span class="w-5 text-center text-base shrink-0">📦</span> All Products
               <% end %>
-              <%= link_to new_product_path, class: "sidebar-link #{'active' if controller_name == 'products' && action_name == 'new'}", id: "nav-add-product" do %>
-                <span class="sidebar-link-icon">➕</span>
-                Add Product
+              <% if current_user&.can_manage_products? %>
+                <%= link_to new_product_path, class: "sidebar-link #{'active' if controller_name == 'products' && action_name == 'new'}", id: "nav-add-product" do %>
+                  <span class="w-5 text-center text-base shrink-0">➕</span> Add Product
+                <% end %>
               <% end %>
             </div>
 
-            <div class="sidebar-section">
-              <div class="sidebar-section-title">Sales</div>
+            <% if current_user&.can_record_sales? %>
+            <div class="mb-6">
+              <div class="text-[0.65rem] font-semibold text-[var(--color-txt-muted)] uppercase tracking-[1.5px] px-3 mb-2">Sales</div>
               <%= link_to new_sale_path, class: "sidebar-link #{'active' if controller_name == 'sales' && action_name == 'new'}", id: "nav-new-sale" do %>
-                <span class="sidebar-link-icon">🛒</span>
-                New Sale
+                <span class="w-5 text-center text-base shrink-0">🛒</span> New Sale
               <% end %>
               <%= link_to sales_path, class: "sidebar-link #{'active' if controller_name == 'sales' && action_name == 'index'}", id: "nav-sales-history" do %>
-                <span class="sidebar-link-icon">📋</span>
-                Sales History
+                <span class="w-5 text-center text-base shrink-0">📋</span> Sales History
               <% end %>
             </div>
+            <% end %>
 
-            <div class="sidebar-section">
-              <div class="sidebar-section-title">Reports</div>
+            <% if current_user&.can_view_reports? %>
+            <div class="mb-6">
+              <div class="text-[0.65rem] font-semibold text-[var(--color-txt-muted)] uppercase tracking-[1.5px] px-3 mb-2">Reports</div>
               <%= link_to daily_report_path, class: "sidebar-link #{'active' if controller_name == 'reports' && action_name == 'daily'}", id: "nav-daily-report" do %>
-                <span class="sidebar-link-icon">📅</span>
-                Today's Report
+                <span class="w-5 text-center text-base shrink-0">📅</span> Today's Report
               <% end %>
               <%= link_to monthly_report_path, class: "sidebar-link #{'active' if controller_name == 'reports' && action_name == 'monthly'}", id: "nav-monthly-report" do %>
-                <span class="sidebar-link-icon">📈</span>
-                Monthly Report
+                <span class="w-5 text-center text-base shrink-0">📈</span> Monthly Report
               <% end %>
               <%= link_to financial_year_report_path, class: "sidebar-link #{'active' if controller_name == 'reports' && action_name == 'financial_year'}", id: "nav-fy-report" do %>
-                <span class="sidebar-link-icon">💰</span>
-                Financial Year
+                <span class="w-5 text-center text-base shrink-0">💰</span> Financial Year
               <% end %>
             </div>
+            <% end %>
 
-            <% if current_user&.owner? %>
-              <div class="sidebar-section">
-                <div class="sidebar-section-title">Admin</div>
-                <%= link_to users_path, class: "sidebar-link #{'active' if controller_name == 'users'}", id: "nav-users" do %>
-                  <span class="sidebar-link-icon">👥</span>
-                  Staff Management
-                <% end %>
-              </div>
+            <% if current_user&.can_manage_users? %>
+            <div class="mb-6">
+              <div class="text-[0.65rem] font-semibold text-[var(--color-txt-muted)] uppercase tracking-[1.5px] px-3 mb-2">Admin</div>
+              <%= link_to users_path, class: "sidebar-link #{'active' if controller_name == 'users'}", id: "nav-users" do %>
+                <span class="w-5 text-center text-base shrink-0">👥</span> Staff Management
+              <% end %>
+            </div>
             <% end %>
           </nav>
 
-          <div class="sidebar-user">
-            <div class="sidebar-avatar"><%= current_user.name[0].upcase %></div>
-            <div class="sidebar-user-info">
-              <div class="sidebar-user-name"><%= current_user.name %></div>
-              <div class="sidebar-user-role"><%= current_user.display_role %></div>
+          <div class="px-4 py-4 border-t border-[var(--color-border)] flex items-center gap-3">
+            <div class="w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm shrink-0" style="background:linear-gradient(135deg,#667eea,#764ba2)"><%= current_user.name[0].upcase %></div>
+            <div class="flex-1 min-w-0">
+              <div class="text-sm font-semibold text-[var(--color-txt-primary)] truncate"><%= current_user.name %></div>
+              <div class="text-[0.7rem] text-[var(--color-txt-muted)] uppercase tracking-wide"><%= current_user.display_role %></div>
             </div>
-            <%= button_to logout_path, method: :delete, class: "sidebar-logout", title: "Logout", id: "logout-btn" do %>
-              🚪
-            <% end %>
+            <button class="theme-toggle-btn" data-action="click->theme#toggle" title="Toggle Dark/Light Theme" id="theme-toggle">
+              <span data-theme-target="icon">☀️</span>
+            </button>
+            <%= button_to logout_path, method: :delete, class: "p-2 rounded-lg cursor-pointer bg-transparent border-none text-base text-[var(--color-txt-muted)] hover:text-[var(--color-danger)] transition-all duration-150", title: "Logout", id: "logout-btn" do %>🚪<% end %>
           </div>
         </aside>
 
-        <!-- Main Content -->
-        <main class="main-content">
+        <main class="flex-1 ml-[260px] p-8 min-h-screen max-md:ml-0 max-md:pt-[72px] max-md:px-4 max-md:pb-6">
           <%= yield %>
         </main>
       </div>
@@ -122,14 +115,13 @@
       <%= yield %>
     <% end %>
 
-    <!-- Flash Messages -->
     <% if flash.any? %>
-      <div class="flash-container" data-controller="notification">
+      <div class="fixed top-5 right-5 z-[1000] flex flex-col gap-2.5 max-w-[400px]" data-controller="notification">
         <% flash.each do |type, message| %>
           <div class="flash-message <%= type %>" data-notification-target="message" data-action="click->notification#dismiss">
             <span><%= type == 'notice' ? '✅' : '⚠️' %></span>
             <span><%= message %></span>
-            <button class="flash-dismiss" data-action="click->notification#dismiss">✕</button>
+            <button class="ml-auto opacity-60 cursor-pointer p-0.5 bg-transparent border-none text-inherit text-lg leading-none hover:opacity-100" data-action="click->notification#dismiss">✕</button>
           </div>
         <% end %>
       </div>

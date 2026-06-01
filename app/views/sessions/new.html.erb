@@ -1,25 +1,20 @@
 <div class="login-page">
   <div class="login-card">
-    <div class="login-header">
-      <div class="login-logo">📱</div>
-      <h2>MobileStock Pro</h2>
-      <p>Sign in to manage your shop</p>
+    <div class="text-center mb-8">
+      <div class="w-[60px] h-[60px] rounded-2xl flex items-center justify-center text-3xl mx-auto mb-4" style="background:linear-gradient(135deg,#667eea,#764ba2);box-shadow:0 0 20px rgba(102,126,234,0.3)">📱</div>
+      <h2 class="text-xl font-extrabold text-[var(--color-txt-primary)] mb-1">MobileStock Pro</h2>
+      <p class="text-sm text-[var(--color-txt-muted)]">Sign in to manage your shop</p>
     </div>
-
-    <%= form_with url: login_path, class: "login-form", id: "login-form" do |f| %>
-      <div class="form-group">
-        <label class="form-label" for="login-email">Email Address</label>
+    <%= form_with url: login_path, class: "space-y-4", id: "login-form" do |f| %>
+      <div>
+        <label class="block text-sm font-semibold text-[var(--color-txt-secondary)] mb-1.5" for="login-email">Email Address</label>
         <input type="email" name="email" id="login-email" class="form-input" placeholder="admin@shop.com" required autofocus autocomplete="email">
       </div>
-
-      <div class="form-group">
-        <label class="form-label" for="login-password">Password</label>
+      <div>
+        <label class="block text-sm font-semibold text-[var(--color-txt-secondary)] mb-1.5" for="login-password">Password</label>
         <input type="password" name="password" id="login-password" class="form-input" placeholder="Enter your password" required autocomplete="current-password">
       </div>
-
-      <button type="submit" class="btn btn-primary" id="login-submit">
-        🔐 Sign In
-      </button>
+      <button type="submit" class="btn btn-primary w-full !py-3 !text-base !mt-2" id="login-submit">🔐 Sign In</button>
     <% end %>
   </div>
 </div>

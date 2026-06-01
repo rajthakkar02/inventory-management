@@ -4,15 +4,25 @@
 
 puts "🌱 Seeding database..."
 
-# Create default owner account
-owner = User.find_or_create_by!(email: "admin@shop.com") do |u|
-  u.name = "Shop Owner"
-  u.password = "password123"
-  u.password_confirmation = "password123"
-  u.role = "owner"
+# Create Super Admin account
+superadmin = User.find_or_create_by!(email: "superadmin@shop.com") do |u|
+  u.name = "Super Admin"
+  u.password = "superadmin123"
+  u.password_confirmation = "superadmin123"
+  u.role = "superadmin"
   u.active = true
 end
-puts "✅ Owner account created: #{owner.email} (password: password123)"
+puts "✅ Super Admin account created: #{superadmin.email} (password: superadmin123)"
+
+# Create Admin account
+admin = User.find_or_create_by!(email: "admin@shop.com") do |u|
+  u.name = "Shop Admin"
+  u.password = "admin123"
+  u.password_confirmation = "admin123"
+  u.role = "admin"
+  u.active = true
+end
+puts "✅ Admin account created: #{admin.email} (password: admin123)"
 
 # Create a sample staff account
 staff = User.find_or_create_by!(email: "staff@shop.com") do |u|
@@ -28,7 +38,6 @@ puts "✅ Staff account created: #{staff.email} (password: staff123)"
 puts "\n📦 Creating sample products..."
 
 products_data = [
-  # Mobiles
   { name: "iPhone 15 Pro Max", category: "mobile", brand: "Apple", model_number: "A2849", color: "Natural Titanium", storage: "256GB", purchase_price: 135000, selling_price: 159900, quantity: 5 },
   { name: "Galaxy S24 Ultra", category: "mobile", brand: "Samsung", model_number: "SM-S928B", color: "Titanium Gray", storage: "256GB", purchase_price: 115000, selling_price: 134999, quantity: 3 },
   { name: "OnePlus 12", category: "mobile", brand: "OnePlus", model_number: "CPH2583", color: "Silky Black", storage: "256GB", purchase_price: 55000, selling_price: 64999, quantity: 8 },
@@ -36,8 +45,6 @@ products_data = [
   { name: "Pixel 8 Pro", category: "mobile", brand: "Google", model_number: "G1MNW", color: "Obsidian", storage: "128GB", purchase_price: 85000, selling_price: 106999, quantity: 2 },
   { name: "Vivo V30 Pro", category: "mobile", brand: "Vivo", model_number: "V2318", color: "Peacock Green", storage: "256GB", purchase_price: 30000, selling_price: 39999, quantity: 6 },
   { name: "Realme GT 5 Pro", category: "mobile", brand: "Realme", model_number: "RMX3888", color: "Moon White", storage: "128GB", purchase_price: 28000, selling_price: 34999, quantity: 4 },
-
-  # Accessories
   { name: "20W USB-C Charger", category: "accessory", brand: "Apple", accessory_type: "charger", purchase_price: 1200, selling_price: 1900, quantity: 25 },
   { name: "Galaxy Buds2 Pro", category: "accessory", brand: "Samsung", accessory_type: "earphone", purchase_price: 8000, selling_price: 12999, quantity: 10 },
   { name: "Clear Case iPhone 15", category: "accessory", brand: "Apple", accessory_type: "case", purchase_price: 200, selling_price: 599, quantity: 30 },
@@ -58,6 +65,7 @@ end
 puts "\n🎉 Seeding complete!"
 puts "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 puts "Login with:"
-puts "  Owner: admin@shop.com / password123"
-puts "  Staff: staff@shop.com / staff123"
+puts "  Super Admin: superadmin@shop.com / superadmin123"
+puts "  Admin:       admin@shop.com / admin123"
+puts "  Staff:       staff@shop.com / staff123"
 puts "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"

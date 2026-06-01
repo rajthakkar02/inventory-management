@@ -14,9 +14,17 @@ class SessionsController < ApplicationController
       if user.active?
         session[:user_id] = user.id
         flash[:notice] = "Welcome back, #{user.name}!"
-        redirect_to root_path
+
+        # Redirect based on role
+        if user.superadmin?
+          redirect_to root_path
+        elsif user.can_manage_products?
+          redirect_to products_path
+        else
+          redirect_to sales_path
+        end
       else
-        flash.now[:alert] = "Your account has been deactivated. Contact the owner."
+        flash.now[:alert] = "Your account has been deactivated. Contact the Super Admin."
         render :new, status: :unprocessable_entity
       end
     else
