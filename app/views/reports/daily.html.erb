@@ -2,7 +2,7 @@
 <div class="flex items-center justify-between flex-wrap gap-4 mb-7">
   <div>
     <h1 class="page-title">📅 Daily Report</h1>
-    <p class="text-sm text-[var(--color-txt-muted)] mt-1"><%= @date.strftime("%A, %d %B %Y") %></p>
+    <p class="text-sm text-[var(--color-txt-muted)] mt-1"><%= @date.strftime("%A, %d %B %Y") %><%= " — Your sales" unless current_user.superadmin? %></p>
   </div>
   <div class="flex gap-2 flex-wrap">
     <%= link_to daily_report_path(date: @date - 1.day), class: "btn btn-secondary btn-sm" do %>← Previous Day<% end %>

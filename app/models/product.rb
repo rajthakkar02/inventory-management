@@ -76,7 +76,7 @@ class Product < ApplicationRecord
   end
 
   def display_name
-    parts = [brand, name].compact
+    parts = [ brand, name ].compact
     parts << "(#{color})" if color.present?
     parts << "#{storage}" if storage.present?
     parts.join(" ")

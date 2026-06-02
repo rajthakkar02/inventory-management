@@ -62,7 +62,8 @@ class Sale < ApplicationRecord
   end
 
   def self.top_selling_products(limit = 10)
-    joins(:product)
+    unscope(:includes, :order)
+      .joins(:product)
       .group("products.id", "products.name", "products.brand")
       .select("products.id, products.name, products.brand, SUM(sales.quantity) as total_qty, SUM(sales.total_amount) as total_revenue")
       .order("total_qty DESC")
@@ -70,14 +71,16 @@ class Sale < ApplicationRecord
   end
 
   def self.daily_breakdown(start_date, end_date)
-    in_date_range(start_date, end_date)
+    unscope(:includes, :order)
+      .in_date_range(start_date, end_date)
       .group("DATE(sold_at)")
       .select("DATE(sold_at) as sale_date, SUM(total_amount) as day_revenue, SUM(quantity) as day_items, COUNT(*) as day_transactions")
       .order("sale_date ASC")
   end
 
   def self.monthly_breakdown(fy_start, fy_end)
-    in_date_range(fy_start, fy_end)
+    unscope(:includes, :order)
+      .in_date_range(fy_start, fy_end)
       .group("strftime('%Y-%m', sold_at)")
       .select("strftime('%Y-%m', sold_at) as sale_month, SUM(total_amount) as month_revenue, SUM(quantity) as month_items, COUNT(*) as month_transactions")
       .order("sale_month ASC")

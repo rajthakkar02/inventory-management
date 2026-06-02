@@ -2,7 +2,7 @@
 <div class="flex items-center justify-between flex-wrap gap-4 mb-7">
   <div>
     <h1 class="page-title">Sales History</h1>
-    <p class="text-sm text-[var(--color-txt-muted)] mt-1">View and filter your sales records</p>
+    <p class="text-sm text-[var(--color-txt-muted)] mt-1"><%= current_user.superadmin? ? "View and filter all sales records" : "View and filter your sales records" %></p>
   </div>
   <%= link_to new_sale_path, class: "btn btn-primary", id: "new-sale-btn" do %>🛒 New Sale<% end %>
 </div>

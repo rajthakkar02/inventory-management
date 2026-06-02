@@ -15,11 +15,6 @@ class ProductsController < ApplicationController
     elsif params[:stock_filter] == "out"
       @products = @products.out_of_stock
     end
-
-    respond_to do |format|
-      format.html
-      format.turbo_stream
-    end
   end
 
   def show
@@ -70,7 +65,7 @@ class ProductsController < ApplicationController
     if new_quantity < 0
       flash[:alert] = "Stock cannot go below zero."
     else
-      @product.update!(quantity: new_quantity)
+      @product.update_column(:quantity, new_quantity)
       flash[:notice] = "Stock updated to #{new_quantity}."
     end
 

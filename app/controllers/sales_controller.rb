@@ -4,6 +4,11 @@ class SalesController < ApplicationController
   def index
     @sales = Sale.includes(:product, :user).order(sold_at: :desc)
 
+    # Admin and staff see only their own sales; superadmin sees all
+    unless current_user.superadmin?
+      @sales = @sales.where(user: current_user)
+    end
+
     if params[:date_filter] == "today"
       @sales = @sales.today
     elsif params[:date_filter] == "this_week"

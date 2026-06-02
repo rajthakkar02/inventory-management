@@ -30,8 +30,7 @@
           <div class="px-5 py-6 border-b border-[var(--color-border)] flex items-center gap-3">
             <div class="w-[42px] h-[42px] rounded-xl flex items-center justify-center text-xl shrink-0" style="background:linear-gradient(135deg,#667eea,#764ba2);box-shadow:0 0 20px rgba(102,126,234,0.3)">📱</div>
             <div>
-              <h1 class="text-lg font-bold text-[var(--color-txt-primary)] leading-tight">MobileStock</h1>
-              <span class="text-[0.7rem] text-[var(--color-txt-muted)] uppercase tracking-wider">Pro Dashboard</span>
+              <h1 class="text-lg font-bold text-[var(--color-txt-primary)] leading-tight">Mobile Stock</h1>
             </div>
           </div>
 
@@ -69,20 +68,20 @@
             </div>
             <% end %>
 
-            <% if current_user&.can_view_reports? %>
             <div class="mb-6">
-              <div class="text-[0.65rem] font-semibold text-[var(--color-txt-muted)] uppercase tracking-[1.5px] px-3 mb-2">Reports</div>
-              <%= link_to daily_report_path, class: "sidebar-link #{'active' if controller_name == 'reports' && action_name == 'daily'}", id: "nav-daily-report" do %>
-                <span class="w-5 text-center text-base shrink-0">📅</span> Today's Report
-              <% end %>
-              <%= link_to monthly_report_path, class: "sidebar-link #{'active' if controller_name == 'reports' && action_name == 'monthly'}", id: "nav-monthly-report" do %>
-                <span class="w-5 text-center text-base shrink-0">📈</span> Monthly Report
-              <% end %>
-              <%= link_to financial_year_report_path, class: "sidebar-link #{'active' if controller_name == 'reports' && action_name == 'financial_year'}", id: "nav-fy-report" do %>
-                <span class="w-5 text-center text-base shrink-0">💰</span> Financial Year
+              <% if current_user&.can_view_reports? %>
+                <div class="text-[0.65rem] font-semibold text-[var(--color-txt-muted)] uppercase tracking-[1.5px] px-3 mb-2">Reports</div>
+                <%= link_to daily_report_path, class: "sidebar-link #{'active' if controller_name == 'reports' && action_name == 'daily'}", id: "nav-daily-report" do %>
+                  <span class="w-5 text-center text-base shrink-0">📅</span> Today's Report
+                <% end %>
+                <%= link_to monthly_report_path, class: "sidebar-link #{'active' if controller_name == 'reports' && action_name == 'monthly'}", id: "nav-monthly-report" do %>
+                  <span class="w-5 text-center text-base shrink-0">📈</span> Monthly Report
+                <% end %>
+                <%= link_to financial_year_report_path, class: "sidebar-link #{'active' if controller_name == 'reports' && action_name == 'financial_year'}", id: "nav-fy-report" do %>
+                  <span class="w-5 text-center text-base shrink-0">💰</span> Financial Year
+                <% end %>
               <% end %>
             </div>
-            <% end %>
 
             <% if current_user&.can_manage_users? %>
             <div class="mb-6">

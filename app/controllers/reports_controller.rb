@@ -1,12 +1,19 @@
+require "csv"
+
 class ReportsController < ApplicationController
   before_action :require_login
-  before_action :require_superadmin!
+  before_action :require_superadmin!, only: [:monthly, :financial_year, :export_csv]
 
   def daily
     @date = params[:date].present? ? Date.parse(params[:date]) : Date.current
     @sales = Sale.includes(:product, :user)
                  .in_date_range(@date, @date)
                  .order(sold_at: :desc)
+
+    # Admin and staff see only their own daily report; superadmin sees all
+    unless current_user.superadmin?
+      @sales = @sales.where(user: current_user)
+    end
 
     @total_revenue = @sales.total_revenue
     @total_items = @sales.total_items_sold
